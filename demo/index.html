@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html x-app='myApp'>
+  <head>
+    <title>rincojs demo</title>
+    <link rel="stylesheet" href="./assets/normalize.css" />
+    <link rel="stylesheet" href="./assets/main.css" />
+    <style>
+      /* begin demo embedded styles */
+
+      /* end demo embedded styles */
+    </style>
+  </head>
+  <body>
+    <h1>rincojs demo</h1>
+
+    <!-- begin demo markup -->
+
+    <!-- end demo markup -->
+
+    <p>See the <a href="http://allanesquina.github.io/rincojs">project homepage</a>.
+    <p>Check out the <a href="https://github.com/allanesquina/rincojs">project repo</a>.
+    <p>Copyright 2013 Allan Esquina</p>
+
+    <div x-controller="myController">
+      <input type="text" x-model="githubName" />
+      <input type="text" x-model="test" />
+      <p>
+        <a class="{{githubName}}" href="http://github.com/{{githubName}}" target="blank" title="">http://github.com/{{githubName}}{{last}}</a>
+      </p>
+    </div>
+
+    <script src="./../dist/rincojs.js"></script>
+    <script src="assets/js/app.js"></script>
+
+    <script>
+      /* begin demo script */
+
+
+      /* end demo script */
+    </script>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "rincojs",
+  "version": "0.0.0",
+  "main": "dist/rincojs.min.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test"
+  ],
+  "dependencies": {}
+}
