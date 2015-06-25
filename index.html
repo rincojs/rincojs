@@ -1,17 +1,22 @@
 <!DOCTYPE html>
-<html fw-app='myApp'>
+<html x-app='myApp'>
 <head>
+	<meta charset='utf-8'>
 	<title>Framework</title>
+	<style>.abc {background:blue; color:#fff;}</style>
 </head>
 <body>
 
-<div fw-controller="myController">
-	<input type="text" fw-model="name" />
-	<input type="text" fw-model="name" />
-	<input type="text" fw-model="name" />
-	{{ name }}
+<div x-controller="myController">
+	<input type="text" x-model="githubName" />
+	<input type="text" x-model="last" />
+	<p>
+		<a class="{{githubName}}" href="http://github.com/{{githubName}}" target="blank" title="">http://github.com/{{githubName}}{{last}}</a>
+	</p>
 </div>
 
-<script type="text/javascript" src='app.js'></script>
+<!-- <script type="text/javascript" src='app.js'></script> -->
+<script type="text/javascript" src='module.js'></script>
+<script type="text/javascript" src='test.js'></script>
 </body>
 </html>
