@@ -21,7 +21,7 @@ module.exports = function(grunt) {
           'src/model.js',
           'src/module.js',
           'src/storage.js',
-          'src/http.js',
+          'src/bootstrap.js',
           'src/_end.js'
         ],
         dest: 'dist/<%= pkg.name.replace(".js", "") %>.js'
@@ -126,7 +126,7 @@ module.exports = function(grunt) {
         function (me, buffer) { me.stdout += buffer.toString() },
         function () { console.log(foo.stdout) }
     );
-    
+
   });
 
 };

@@ -13,9 +13,9 @@ var Event = (function( window, document ) {
 
 	function receive( event ) {
 		var el = event.target, id = el.getAttribute( 'x-id' );
-		Storage.Model[ id ].set( el.value );
+		Storage.cache.models[ id ].set( el.value );
 		// Action.addToQueue( Storage.Model[ id ].name );
-		console.log(  Storage.Model[ id ] )
+		console.log(  Storage.cache.models[ id ] )
 	}
 
 	return {

@@ -90,10 +90,6 @@ var DOM = (function( window, document ) {
 		var Controller = [];
 		var _controller, cLen, mLen, ctrName, modelName, Model;
 
-		//Find app directive
-		var app = document.querySelectorAll( '[x-app]' );
-		if( app ) {
-
 			// Find controllers directives
 			_controller = document.querySelectorAll( '[x-controller]' );
 			cLen = _controller.length;
@@ -104,6 +100,7 @@ var DOM = (function( window, document ) {
 
 					var ctrName = _controller[ i ].getAttribute( 'x-controller' );
 					var MODELS = loadTextNode( _controller[ i ] );
+					var LOOPS =  _controller[ i ].querySelectorAll( '[x-foreach]' );
 					console.log( MODELS)
 					Model = [];
 
@@ -116,15 +113,14 @@ var DOM = (function( window, document ) {
 						console.log( elements )
 						elements.push( arrModels[ j ] );
 
-						Model.push( { name: modelName, DOM: elements } ) 
+						Model.push( { name: modelName, DOM: elements, loop: LOOPS.length > 0 ? LOOPS : undefined } )
 					}
 
 					Controller.push( { name: ctrName, model: Model } );
 				}
 			}
 
-		Storage.Controller = Controller;
-		}
+		Storage.controller = Controller;
 	}
 
 
@@ -143,6 +139,7 @@ var DOM = (function( window, document ) {
 		var modelx = [];
 
 		(function a(node) {
+			if($(node).attr('x-foreach')) return
 			// text node
 			if (node.nodeType == 3) {
 				res = re.exec(node.nodeValue);
@@ -176,12 +173,35 @@ var DOM = (function( window, document ) {
 		}( el ));
 		return modelx;
 	}
+	function repeat (el, items) {
+		var copy, fragment=[];
+		var re = /{{\s*([^\s}]+)\s*}}/g
+		var string = el.outerHTML;
+		var len = items.length, i=0;
+		$(el).removeAttr('x-foreach');
+
+		var tmp = loadTextNode(el);
+
+		for(;i < len; i+=1) {
+
+			tmp.forEach(function(e) {
+				var out = string.replace(/{{\s*([^\s}]+)\s*}}/g, items[i][e.name] )
+				console.log(out);
+				fragment.push(out);
+			});
+		}
+
+		$(el).parent().html(fragment.join(''));
+	}
+
 
 	return {
 		process: process,
-		addAttr: addAttr
+		addAttr: addAttr,
+		repeat:repeat
 	}
 }( window, document ));
+
 
 // Event Module
 var Event = (function( window, document ) {
@@ -198,9 +218,9 @@ var Event = (function( window, document ) {
 
 	function receive( event ) {
 		var el = event.target, id = el.getAttribute( 'x-id' );
-		Storage.Model[ id ].set( el.value );
+		Storage.cache.models[ id ].set( el.value );
 		// Action.addToQueue( Storage.Model[ id ].name );
-		console.log(  Storage.Model[ id ] )
+		console.log(  Storage.cache.models[ id ] )
 	}
 
 	return {
@@ -211,16 +231,16 @@ var Event = (function( window, document ) {
 
 
 /**
- * Model 
+ * Model
  * @author Allan Esquina
  */
 
 /**
  * Model constructor
- * @param object opt { name: name, type:type} 
+ * @param object opt { name: name, type:type}
  * @category Rinco.Model
  *  @example
- *  // Instantiate model 
+ *  // Instantiate model
  *  new Model (name: 'myModel', type: 'model');
  */
 var Model = Rinco.Model = function (opt) {
@@ -229,10 +249,11 @@ var Model = Rinco.Model = function (opt) {
 	this.value;
 	this.id = Storage.ID++;
 	this.DOM = opt.DOM || [];
-	
+	this.loop = opt.loop || [];
+
 	Event.listen( this.DOM );
-	
-	DOM.addAttr( this.DOM, this.id );
+
+	DOM.addAttr(this.DOM, this.id);
 }
 
 _.extend( Model.prototype, {
@@ -244,19 +265,23 @@ _.extend( Model.prototype, {
 	 * @return void
  	*/
 	 set: function( value ) {
-		
+
 			this.value = value;
 			// Action.addToQueue( this.name )
 			this.update();
 	},
 
 	/**
-	 * Update the model's dom objects setting the model's value for each one 
+	 * Update the model's dom objects setting the model's value for each one
 	 * @category Rinco.Model
 	 * @return void
  	*/
 	update: function() {
+		this.updateDom();
+		this.updateLoops();
 
+	},
+	updateDom: function() {
 		var self = this;
 		this.DOM.forEach( function( el ) {
 			if (el.nodeType == 2) {
@@ -268,53 +293,36 @@ _.extend( Model.prototype, {
 			else {
 				el[ el.nodeType===1?'value':'nodeValue']=self.value;
 			}
-			
+
 		});
+	},
+	updateLoops: function () {
+		var len = this.loop.length, i=0;
+		for(;i < len; i+=1) {
+				DOM.repeat(this.loop[i], this.value);
+				console.log( this.loop[i]);
+		}
 	}
 });
 
 
 // TODO change Module to a instance and this method to be part of then
 var Module = (function( window, document ) {
-	var _Controller = [],
-		controller;
-
-	function build() {
-		var len = controller.length, i=0, instance, mLen, ctrModel, Models;
-		for( ; i < len; i+=1 ) {
-			Models = [];
-			ctrModel = controller[ i ].model;
-			mLen = ctrModel.length;
-
-			for( var j=0; j < mLen; j+=1 ) {
-				var modelInstance = new Model( ctrModel[ j ] );
-				Models.push( modelInstance );
-				Storage.Model[ modelInstance.id ] = modelInstance;
-			}
-
-			instance = new Controller( controller[ i ].name );
-			instance.model = Models;
-			_Controller.push( instance );
-		}
-	}
 
 	function bindController( name, fn ) {
 
 		var ctr = getController( name );
 		if( ctr ) {
-			ctr.services = {};
-			ctr.services[ 'http' ] = Http;
 			fn.apply( ctr, [ctr] );
+			console.log( 'bindController');
 		}
-		console.log( 'bindController');
-
 	}
 
 	function getController( name ) {
-		var len = _Controller.length;
+		var len = Storage.cache.controllers.length;
 		for( var i=0; i < len; i+=1 ) {
-			if( _Controller[i].name === name ) {
-				return _Controller[i];
+			if( Storage.cache.controllers[i].name === name ) {
+				return Storage.cache.controllers[i];
 			}
 		}
 		return false;
@@ -322,9 +330,6 @@ var Module = (function( window, document ) {
 
 	function init( name, fn ) {
 		// Heartbeat.init();
-		DOM.process();
-		controller = Storage.Controller;
-		build();
 		bindController( name, fn );
 	}
 
@@ -334,246 +339,51 @@ var Module = (function( window, document ) {
 
 }( window, document ));
 
-var Storage = { 
-	Controller: {}, 
-	ID:0, 
-	Model 
+
+var Storage = {
+	controller: {},
+	ID:0,
+	model : [],
+	cache: {
+		controllers: [],
+		models:[]
+	}
 };
 
-// ajax类
-// 封装了一些常用的ajax方法， 方便ajax使用
-// https://github.com/andycall/XHR
 
-var Http = (function( window, document ){
+// Bootstrap module
+var Bootstrap = Rinco.Bootstrap = (function() {
 
-    var xhr = undefined;
+  function build() {
+    var len = Storage.controller.length, i=0, instance, mLen, ctrModel, Models;
+    for( ; i < len; i+=1 ) {
+      Models = [];
+      ctrModel = Storage.controller[ i ].model;
+      mLen = ctrModel.length;
 
-    // 默认的head头
-    var configDefault = {
-        Get : "text/plain",
-        Post : "application/x-www-form-urlencoded",
-        PostJson : "application/json"
-    };
+      for( var j=0; j < mLen; j+=1 ) {
+        var modelInstance = new Model( ctrModel[ j ] );
+        Models.push( modelInstance );
+        Storage.cache.models[ modelInstance.id ] = modelInstance;
+      }
 
-
-    function extend(obj, extension){
-        for(var key in extension){
-            if(extension.hasOwnProperty(key) && !(key in obj)){
-                obj[key] = extension[key];
-            }
-        }
-        return obj;
+      instance = new Controller( Storage.controller[ i ].name );
+      instance.model = Models;
+      Storage.cache.controllers.push( instance );
     }
+  }
 
+  function init () {
+    DOM.process();
+    build();
+  }
+  init();
+  return {
+    init:init
+  }
 
-    function XHR(config){
-        var config = config || {};
-        this.config = extend(config, configDefault);
-    }
+}(window, document));
 
-
-    // 事件绑定函数
-    function on (target, eventName, fn) {
-        var factor = /\s+/g;
-
-        var fnString = fn.toString().replace(factor, "");
-        if (!target[eventName + "event"]) {
-            target[eventName + 'event'] = {};
-        }
-        target[eventName + 'event'][eventName] = function(e) {
-            fn.call(this, e);
-        }
-        var eventFunc = target[eventName + "event"][eventName];
-
-        if (document.attachEvent) {
-            target.attachEvent('on' + eventName, eventFunc);
-        } else if (document.addEventListener) {
-            target.addEventListener(eventName, eventFunc, false);
-        } else {
-            target['on' + eventName] = eventFunc;
-        }
-    };
-
-
-    // 表单格式转换
-    function formEncode(data){
-        if(! data) return "";
-
-        var result = [],
-            value;
-
-        for(var key in data){
-            if(!data.hasOwnProperty(key)) continue;
-            if(typeof data === 'function') continue;
-
-            try{
-                value = data[key].toString();
-            }
-            catch(e){
-
-            }
-
-            key = encodeURIComponent(key.replace("%20", "+"));
-            value = encodeURIComponent(value.replace("%20", "+"));
-            result.push(key + "=" + value);
-        }
-
-        return result.join("&");
-    }
-
-    // 回调处理
-    function handleRequest(callback){
-        var type = xhr.getResponseHeader('Content-Type');
-
-        if(type.match(/^text/)){
-            callback(xhr.responseText);
-        }
-        else if(type.indexOf('xml') != -1 && xhr.responseXML){
-            callback(xhr.responseXML);
-        }
-        else if(type === 'application/json'){
-            callback(JSON.parse(xhr.responseText));
-        }
-    }
-
-
-    /**
-     * 初始化, 已整合至setup函数中
-     * @returns {xhr}
-     */
-    XHR.prototype.init = function(){
-        if(window.XMLHttpRequest == undefined){
-            window.XMLHttpRequest = function(){
-                xhr =  new ActiveXObject();
-            }
-        }
-        xhr =  new XMLHttpRequest();
-
-        return this;
-    }
-
-    /**
-     * GET请求。 默认获取纯文本， 可作为GET表单提交
-     */
-    XHR.prototype.get = function(url){
-        var self = this,
-            config = self.config,
-            callback,
-            data;
-
-        xhr.open("GET", url);
-
-        callback = arguments[1];
-
-        if(arguments.length > 2){
-            data = arguments[1];
-            callback = arguments[2];
-        }  
-
-        // 设置Content-Type头/
-        var header = config.Get || "text/plain";
-
-        xhr.setRequestHeader('Content-type', header);
-
-        on(xhr, 'readystatechange', function(e){
-            if(xhr.readyState == 4 && ( xhr.status == 200 || xhr.status == 304 )) {
-                var type = xhr.getResponseHeader("Content-Type");
-                // 必须是文本
-                // if(type.match(/^text/)){
-                   callback(xhr.responseText);
-                // }
-            }
-        });
-
-        if(header == "application/x-www-form-urlencoded"){
-            xhr.send(formEncode(data));
-        }
-        else{
-            xhr.send(null);
-        }
-
-    }
-
-
-    /**
-     * 使用POST发送JSON格式的数据
-     * @param data
-     * @param callback
-     */
-    XHR.prototype.postJSON = function(url, data, callback){
-        var self = this,
-            config = self.config;
-
-        xhr.open("POST", url);
-
-        var header = config.PostJson || "application/json";
-
-        xhr.setRequestHeader('Content-Type', header);
-
-        on(xhr, 'readystatechange', function(e){
-            if(xhr.readyState === 4 && xhr.status === 200){
-                handleRequest(callback);
-            }
-        });
-
-        xhr.send(JSON.stringify(data));
-
-    }
-
-    /**
-     * POST表单提交
-     * @param data
-     * @param callback
-     */
-    XHR.prototype.post = function(url, data, callback){
-        var self = this,
-            config = self.config;
-
-        xhr.open("POST", url);
-
-        var header = config.Post || "application/x-www-form-urlencoded";
-
-        xhr.setRequestHeader("Content-Type", header);
-
-        on(xhr, 'readystatechange', function(e){
-            if(xhr.readyState == 4 && xhr.status == 200){
-                handleRequest(callback);
-            }
-        });
-
-        xhr.send(formEncode(data));
-    }
-
-    XHR.prototype.cors = function(url, data, callback){
-        var supportCORS = new XMLHttpRequest().withCredentials == undefined,
-            self = this;
-
-        if(supportCORS){
-            self.post(url, data, callback);
-        }
-    }
-
-    XHR.prototype.jsonp = function(url, callback){
-        if(url.indexOf("?") == -1){
-            url += "?jsonp=" + callback.name;
-        }
-        else{
-            url+= "&jsonp=" + callback.name;
-        }
-
-        var script = document.createElement('script');
-        script.src = url;
-        script.id = callback.name;
-        document.body.appendChild(script);
-    }
-
-    XHR.setup = function(config){
-        return new XHR(config).init();
-    }
-
-    return XHR.setup();
-
-}( window, document ));
 
 
 	window.Rinco = Module;

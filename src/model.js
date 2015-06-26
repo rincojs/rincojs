@@ -1,14 +1,14 @@
 /**
- * Model 
+ * Model
  * @author Allan Esquina
  */
 
 /**
  * Model constructor
- * @param object opt { name: name, type:type} 
+ * @param object opt { name: name, type:type}
  * @category Rinco.Model
  *  @example
- *  // Instantiate model 
+ *  // Instantiate model
  *  new Model (name: 'myModel', type: 'model');
  */
 var Model = Rinco.Model = function (opt) {
@@ -17,10 +17,11 @@ var Model = Rinco.Model = function (opt) {
 	this.value;
 	this.id = Storage.ID++;
 	this.DOM = opt.DOM || [];
-	
+	this.loop = opt.loop || [];
+
 	Event.listen( this.DOM );
-	
-	DOM.addAttr( this.DOM, this.id );
+
+	DOM.addAttr(this.DOM, this.id);
 }
 
 _.extend( Model.prototype, {
@@ -32,19 +33,23 @@ _.extend( Model.prototype, {
 	 * @return void
  	*/
 	 set: function( value ) {
-		
+
 			this.value = value;
 			// Action.addToQueue( this.name )
 			this.update();
 	},
 
 	/**
-	 * Update the model's dom objects setting the model's value for each one 
+	 * Update the model's dom objects setting the model's value for each one
 	 * @category Rinco.Model
 	 * @return void
  	*/
 	update: function() {
+		this.updateDom();
+		this.updateLoops();
 
+	},
+	updateDom: function() {
 		var self = this;
 		this.DOM.forEach( function( el ) {
 			if (el.nodeType == 2) {
@@ -56,7 +61,14 @@ _.extend( Model.prototype, {
 			else {
 				el[ el.nodeType===1?'value':'nodeValue']=self.value;
 			}
-			
+
 		});
+	},
+	updateLoops: function () {
+		var len = this.loop.length, i=0;
+		for(;i < len; i+=1) {
+				DOM.repeat(this.loop[i], this.value);
+				console.log( this.loop[i]);
+		}
 	}
 });

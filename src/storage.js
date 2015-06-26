@@ -1,5 +1,9 @@
-var Storage = { 
-	Controller: {}, 
-	ID:0, 
-	Model 
+var Storage = {
+	controller: {},
+	ID:0,
+	model : [],
+	cache: {
+		controllers: [],
+		models:[]
+	}
 };

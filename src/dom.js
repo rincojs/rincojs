@@ -22,10 +22,6 @@ var DOM = (function( window, document ) {
 		var Controller = [];
 		var _controller, cLen, mLen, ctrName, modelName, Model;
 
-		//Find app directive
-		var app = document.querySelectorAll( '[x-app]' );
-		if( app ) {
-
 			// Find controllers directives
 			_controller = document.querySelectorAll( '[x-controller]' );
 			cLen = _controller.length;
@@ -36,6 +32,7 @@ var DOM = (function( window, document ) {
 
 					var ctrName = _controller[ i ].getAttribute( 'x-controller' );
 					var MODELS = loadTextNode( _controller[ i ] );
+					var LOOPS =  _controller[ i ].querySelectorAll( '[x-foreach]' );
 					console.log( MODELS)
 					Model = [];
 
@@ -48,15 +45,14 @@ var DOM = (function( window, document ) {
 						console.log( elements )
 						elements.push( arrModels[ j ] );
 
-						Model.push( { name: modelName, DOM: elements } ) 
+						Model.push( { name: modelName, DOM: elements, loop: LOOPS.length > 0 ? LOOPS : undefined } )
 					}
 
 					Controller.push( { name: ctrName, model: Model } );
 				}
 			}
 
-		Storage.Controller = Controller;
-		}
+		Storage.controller = Controller;
 	}
 
 
@@ -75,6 +71,7 @@ var DOM = (function( window, document ) {
 		var modelx = [];
 
 		(function a(node) {
+			if($(node).attr('x-foreach')) return
 			// text node
 			if (node.nodeType == 3) {
 				res = re.exec(node.nodeValue);
@@ -108,9 +105,31 @@ var DOM = (function( window, document ) {
 		}( el ));
 		return modelx;
 	}
+	function repeat (el, items) {
+		var copy, fragment=[];
+		var re = /{{\s*([^\s}]+)\s*}}/g
+		var string = el.outerHTML;
+		var len = items.length, i=0;
+		$(el).removeAttr('x-foreach');
+
+		var tmp = loadTextNode(el);
+
+		for(;i < len; i+=1) {
+
+			tmp.forEach(function(e) {
+				var out = string.replace(/{{\s*([^\s}]+)\s*}}/g, items[i][e.name] )
+				console.log(out);
+				fragment.push(out);
+			});
+		}
+
+		$(el).parent().html(fragment.join(''));
+	}
+
 
 	return {
 		process: process,
-		addAttr: addAttr
+		addAttr: addAttr,
+		repeat:repeat
 	}
 }( window, document ));

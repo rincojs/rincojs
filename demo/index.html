@@ -28,14 +28,33 @@
         <a class="{{githubName}}" href="http://github.com/{{githubName}}" target="blank" title="">http://github.com/{{githubName}}{{last}}</a>
       </p>
     </div>
+
     <div x-controller="myController2">
+      <input type="text" x-model="githubName" />
+      <input type="text" x-model="test" />
+      <input value="Wood" type="hidden" x-model="type" />
+      <p>
+        {{ type }}
+      </p>
+
+      <p>
+        <a class="{{githubName}}" href="http://github.com/{{githubName}}" target="blank" title="">http://github.com/{{githubName}}{{last}}</a>
+      </p>
+      <ul>
+        <li x-foreach="item in items">{{value}}{{teste}}{{opa}}</li>
+      </ul>
+    </div>
+
+    <div x-controller="myController3">
       <input type="text" x-model="githubName" />
       <input type="text" x-model="test" />
       <p>
         <a class="{{githubName}}" href="http://github.com/{{githubName}}" target="blank" title="">http://github.com/{{githubName}}{{last}}</a>
       </p>
+      <ul>
+        <li x-loop="item in items">{{item}}</li>
+      </ul>
     </div>
-
 
     <script src="./../dist/rincojs.js"></script>
     <script src="assets/js/app.js"></script>
