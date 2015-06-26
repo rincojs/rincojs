@@ -6,10 +6,6 @@ function Model( opt ) {
 	this.value;
 	this.id = Storage.ID++;
 	Event.listen( this.DOM );
-	var self = this;
-	Action.register( this.name, function() {
-		self.updateDOM();
-	})
 	DOM.addAttr( this.DOM, this.id );
 }
 

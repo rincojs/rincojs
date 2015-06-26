@@ -1,3 +1,8 @@
+/**
+ * Bang do milenio
+ * @author Allan Esquina
+ */
+
 // DOM module
 var DOM = (function( window, document ) {
 

@@ -26,6 +26,8 @@ var Module = (function( window, document ) {
 
 		var ctr = getController( name );
 		if( ctr ) {
+			ctr.services = {};
+			ctr.services[ 'http' ] = Http;
 			fn.apply( ctr, [ctr] );
 		}
 		console.log( 'bindController');

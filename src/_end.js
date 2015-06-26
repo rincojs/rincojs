@@ -1,4 +1,4 @@
 
 	window.Rinco = Module;
 
-}( window, document ));
+}( window, document, Zepto ));
