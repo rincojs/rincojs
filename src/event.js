@@ -13,7 +13,7 @@ var Event = (function( window, document ) {
 
 	function receive( event ) {
 		var el = event.target, id = el.getAttribute( 'x-id' );
-		Storage.Model[ id ].setValue( el.value );
+		Storage.Model[ id ].set( el.value );
 		// Action.addToQueue( Storage.Model[ id ].name );
 		console.log(  Storage.Model[ id ] )
 	}

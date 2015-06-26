@@ -38,9 +38,9 @@ Controller.prototype.setModel = function( name, value ) {
 	for( var i=0; i < len; i+=1 ) {
 		if( this.model[ i ].name === name ) {
 			if( value && value.call ) {
-				this.model[ i ].setValue( value.call() );
+				this.model[ i ].set( value.call() );
 			} else {
-				this.model[ i ].setValue( value );
+				this.model[ i ].set( value );
 			}
 		}
 	}

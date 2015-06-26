@@ -11,6 +11,7 @@ module.exports = function(grunt) {
       dist: {
         src: [
           'src/vendor/zepto.min.js',
+          'src/vendor/underscore-min.js',
           'src/_begin.js',
           // 'src/action.js',
           'src/controller.js',
@@ -56,7 +57,7 @@ module.exports = function(grunt) {
 
     watch: {
       files: ['src/*.js'],
-      tasks: ['concat', 'jshint', 'qunit']
+      tasks: ['doc','concat', 'jshint', 'qunit']
     },
 
    'http-server': {
@@ -108,5 +109,24 @@ module.exports = function(grunt) {
   grunt.registerTask('default', ['concat', 'qunit', 'uglify']);
   grunt.registerTask('server', ['http-server', 'watch']);
 
+
+
+  grunt.registerTask( 'doc', function() {
+
+    function run_cmd(cmd, args, cb, end) {
+        var spawn = require('child_process').spawn,
+            child = spawn(cmd, args),
+            me = this;
+        child.stdout.on('data', function (buffer) { cb(me, buffer) });
+        child.stdout.on('end', end);
+    }
+
+    var doc = new run_cmd(
+        'python', ['docs/docgenerator/documentor.py'],
+        function (me, buffer) { me.stdout += buffer.toString() },
+        function () { console.log(foo.stdout) }
+    );
+    
+  });
 
 };

@@ -445,8 +445,8 @@ def doctojson(doc):
     return json.dumps(data, indent=4)
 
 if __name__ == '__main__':
-   files = ['controller', 'dom']
+   files = ['controller', 'dom', 'model']
    for file in files:
-      code = parse(open('../../src/%s.js' % (file,)).read())
-      with (open('exemplo-'+ file +'.html', 'w')) as f:
+      code = parse(open('src/%s.js' % (file,)).read())
+      with (open('docs/exemplo-'+ file +'.html', 'w')) as f:
          f.write(doctohtml(code))

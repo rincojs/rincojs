@@ -28,6 +28,14 @@
         <a class="{{githubName}}" href="http://github.com/{{githubName}}" target="blank" title="">http://github.com/{{githubName}}{{last}}</a>
       </p>
     </div>
+    <div x-controller="myController2">
+      <input type="text" x-model="githubName" />
+      <input type="text" x-model="test" />
+      <p>
+        <a class="{{githubName}}" href="http://github.com/{{githubName}}" target="blank" title="">http://github.com/{{githubName}}{{last}}</a>
+      </p>
+    </div>
+
 
     <script src="./../dist/rincojs.js"></script>
     <script src="assets/js/app.js"></script>
