@@ -16,6 +16,74 @@ var Zepto=function(){function L(t){return null==t?String(t):j[S.call(t)]||"objec
 	var Rinco = {};
 
 
+// Collection constructor
+var Collection = Rinco.Collection = function (el) {
+  this.id = Storage.collectionID++;
+  this.data = [];
+  this.rows = [];
+  this.reference = el;
+  this.process();
+  console.log(this.rows);
+}
+
+Collection.prototype = {
+  addRow: function (data){
+    var row = new CollectionRow();
+  },
+  removeRow: function (row) {
+
+  },
+  compareRow: function (row1, row2) {
+
+  },
+  update: function () {
+    this.process()
+  },
+  process: function () {
+
+    // Create rows by data
+    var len = this.data.length, i=0, row, obj, elements;
+    for (; i < len; i+=1) {
+      // Create element by element referenc
+      obj = $(this.reference.outerHTML);
+      obj.removeAttr('x-foreach');
+
+      // Load the TextNode's
+      elements = DOM.loadTextNode(obj[0]);
+
+      // Instantiate new row
+      row = new CollectionRow(this.data[i], elements, obj);
+      obj.attr('x-cid',this.id);
+      obj.attr('x-rid',row.id);
+      this.rows.push(row);
+    }
+  },
+  set: function (value) {
+      this.data = value;
+      this.update();
+  }
+
+}
+
+
+// Line model
+var CollectionRow = Rinco.CollectionRow = function (data, dom, ref) {
+  this.data = data;
+  this.dom = dom;
+  this.reference = ref;
+  this.id = Storage.rowID++;
+}
+CollectionRow.prototype  = {
+  update: function () {
+
+	},
+  set: function (val) {
+
+  }
+
+}
+
+
 /**
  * Descricao da lib
  * @author Allan Esquina
@@ -101,7 +169,6 @@ var DOM = (function( window, document ) {
 					var ctrName = _controller[ i ].getAttribute( 'x-controller' );
 					var MODELS = loadTextNode( _controller[ i ] );
 					var LOOPS =  _controller[ i ].querySelectorAll( '[x-foreach]' );
-					console.log( MODELS)
 					Model = [];
 
 					var arrModels = _controller[ i ].querySelectorAll( '[x-model]' );
@@ -110,7 +177,6 @@ var DOM = (function( window, document ) {
 					for( var j=0; j < mLen; j+=1 ) {
 						modelName = arrModels[ j ].getAttribute( 'x-model' );
 						var elements = getTextNodeByModel( modelName, MODELS  );
-						console.log( elements )
 						elements.push( arrModels[ j ] );
 
 						Model.push( { name: modelName, DOM: elements, loop: LOOPS.length > 0 ? LOOPS : undefined } )
@@ -173,32 +239,50 @@ var DOM = (function( window, document ) {
 		}( el ));
 		return modelx;
 	}
-	function repeat (el, items) {
-		var copy, fragment=[];
-		var re = /{{\s*([^\s}]+)\s*}}/g
-		var string = el.outerHTML;
+	function _repeat (el, items) {
 		var len = items.length, i=0;
-		$(el).removeAttr('x-foreach');
+		var string = el.outerHTML;
+		var line = '';
+		var arr=[];
+		// rows
+		for( ; i < len; i+=1) {
+			line = string;
+			// variables
+			for( var k in items[i]) {
+				line = render( line, k, items[i] )
+			}
+			arr.push(line);
+		}
+		$(el).parent().html(arr.join(''))
+	}
 
-		var tmp = loadTextNode(el);
+	function render( tpl, key, data ) {
+	  var tmp = new RegExp( '{{\s*' + key + '\s*}}', 'g' );
+	  tpl = tpl.replace( tmp, data[ key ] );
+  	return tpl;
+	}
 
-		for(;i < len; i+=1) {
+	function repeat (collection) {
+		var rows = collection.rows;
+		var ref = collection.reference;
+		var data = collection.data;
 
-			tmp.forEach(function(e) {
-				var out = string.replace(/{{\s*([^\s}]+)\s*}}/g, items[i][e.name] )
-				console.log(out);
-				fragment.push(out);
-			});
+		for (var i = 0; i < rows.length; i++) {
+			var dom = rows[i].dom;
+			for (var j = 0; j < dom.length; j++) {
+				dom[j].el.nodeValue = data[i][dom[j].name];
+			}
+			$(rows[i].reference).insertBefore(ref);
 		}
 
-		$(el).parent().html(fragment.join(''));
 	}
 
 
 	return {
 		process: process,
 		addAttr: addAttr,
-		repeat:repeat
+		repeat:repeat,
+		loadTextNode:loadTextNode
 	}
 }( window, document ));
 
@@ -220,7 +304,7 @@ var Event = (function( window, document ) {
 		var el = event.target, id = el.getAttribute( 'x-id' );
 		Storage.cache.models[ id ].set( el.value );
 		// Action.addToQueue( Storage.Model[ id ].name );
-		console.log(  Storage.cache.models[ id ] )
+		// console.log(  Storage.cache.models[ id ] )
 	}
 
 	return {
@@ -246,14 +330,17 @@ var Event = (function( window, document ) {
 var Model = Rinco.Model = function (opt) {
 	this.name = opt.name;
 	this.type = opt.type || 'model';
-	this.value;
+	this.value = '';
 	this.id = Storage.ID++;
 	this.DOM = opt.DOM || [];
 	this.loop = opt.loop || [];
+	this.collections = [];
 
 	Event.listen( this.DOM );
+	this.makeCollections();
 
 	DOM.addAttr(this.DOM, this.id);
+	console.log(this);
 }
 
 _.extend( Model.prototype, {
@@ -278,7 +365,8 @@ _.extend( Model.prototype, {
  	*/
 	update: function() {
 		this.updateDom();
-		this.updateLoops();
+		// this.updateLoops();
+		this.updateCollections();
 
 	},
 	updateDom: function() {
@@ -300,7 +388,24 @@ _.extend( Model.prototype, {
 		var len = this.loop.length, i=0;
 		for(;i < len; i+=1) {
 				DOM.repeat(this.loop[i], this.value);
-				console.log( this.loop[i]);
+				// console.log( this.loop[i]);
+		}
+	},
+	makeCollections: function () {
+
+		var len = this.loop.length, i=0;
+		for(;i < len; i+=1) {
+			this.collections.push(new Collection(this.loop[i]));
+			this.updateCollections();
+		}
+
+	},
+	updateCollections: function () {
+
+		var len = this.collections.length, i=0;
+		for(;i < len; i+=1) {
+			this.collections[i].set(this.value);
+			DOM.repeat(this.collections[i]);
 		}
 	}
 });
@@ -342,6 +447,8 @@ var Module = (function( window, document ) {
 
 var Storage = {
 	controller: {},
+	collectionID:0,
+	rowID:0,
 	ID:0,
 	model : [],
 	cache: {
@@ -387,5 +494,6 @@ var Bootstrap = Rinco.Bootstrap = (function() {
 
 
 	window.Rinco = Module;
+	window.rincostorage = Storage;
 
 }( window, document, Zepto ));

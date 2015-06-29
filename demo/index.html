@@ -20,19 +20,11 @@
     <p>See the <a href="http://allanesquina.github.io/rincojs">project homepage</a>.
     <p>Check out the <a href="https://github.com/allanesquina/rincojs">project repo</a>.
     <p>Copyright 2013 Allan Esquina</p>
-
-    <div x-controller="myController">
-      <input type="text" x-model="githubName" />
-      <input type="text" x-model="test" />
-      <p>
-        <a class="{{githubName}}" href="http://github.com/{{githubName}}" target="blank" title="">http://github.com/{{githubName}}{{last}}</a>
-      </p>
-    </div>
-
+<!--
     <div x-controller="myController2">
       <input type="text" x-model="githubName" />
       <input type="text" x-model="test" />
-      <input value="Wood" type="hidden" x-model="type" />
+      <input value="Wood" type="hidden" x-model="type" value='test' />
       <p>
         {{ type }}
       </p>
@@ -41,18 +33,18 @@
         <a class="{{githubName}}" href="http://github.com/{{githubName}}" target="blank" title="">http://github.com/{{githubName}}{{last}}</a>
       </p>
       <ul>
-        <li x-foreach="item in items">{{value}}{{teste}}{{opa}}</li>
+        <li x-foreach="item in items">{{value}} {{teste}} {{opa}}</li>
       </ul>
-    </div>
+    </div> -->
+
 
     <div x-controller="myController3">
       <input type="text" x-model="githubName" />
-      <input type="text" x-model="test" />
       <p>
         <a class="{{githubName}}" href="http://github.com/{{githubName}}" target="blank" title="">http://github.com/{{githubName}}{{last}}</a>
       </p>
       <ul>
-        <li x-loop="item in items">{{item}}</li>
+        <li x-foreach="item in items">{{value}} {{teste}} {{opa}}</li>
       </ul>
     </div>
 

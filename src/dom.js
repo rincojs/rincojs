@@ -33,7 +33,6 @@ var DOM = (function( window, document ) {
 					var ctrName = _controller[ i ].getAttribute( 'x-controller' );
 					var MODELS = loadTextNode( _controller[ i ] );
 					var LOOPS =  _controller[ i ].querySelectorAll( '[x-foreach]' );
-					console.log( MODELS)
 					Model = [];
 
 					var arrModels = _controller[ i ].querySelectorAll( '[x-model]' );
@@ -42,7 +41,6 @@ var DOM = (function( window, document ) {
 					for( var j=0; j < mLen; j+=1 ) {
 						modelName = arrModels[ j ].getAttribute( 'x-model' );
 						var elements = getTextNodeByModel( modelName, MODELS  );
-						console.log( elements )
 						elements.push( arrModels[ j ] );
 
 						Model.push( { name: modelName, DOM: elements, loop: LOOPS.length > 0 ? LOOPS : undefined } )
@@ -105,31 +103,49 @@ var DOM = (function( window, document ) {
 		}( el ));
 		return modelx;
 	}
-	function repeat (el, items) {
-		var copy, fragment=[];
-		var re = /{{\s*([^\s}]+)\s*}}/g
-		var string = el.outerHTML;
+	function _repeat (el, items) {
 		var len = items.length, i=0;
-		$(el).removeAttr('x-foreach');
+		var string = el.outerHTML;
+		var line = '';
+		var arr=[];
+		// rows
+		for( ; i < len; i+=1) {
+			line = string;
+			// variables
+			for( var k in items[i]) {
+				line = render( line, k, items[i] )
+			}
+			arr.push(line);
+		}
+		$(el).parent().html(arr.join(''))
+	}
 
-		var tmp = loadTextNode(el);
+	function render( tpl, key, data ) {
+	  var tmp = new RegExp( '{{\s*' + key + '\s*}}', 'g' );
+	  tpl = tpl.replace( tmp, data[ key ] );
+  	return tpl;
+	}
 
-		for(;i < len; i+=1) {
+	function repeat (collection) {
+		var rows = collection.rows;
+		var ref = collection.reference;
+		var data = collection.data;
 
-			tmp.forEach(function(e) {
-				var out = string.replace(/{{\s*([^\s}]+)\s*}}/g, items[i][e.name] )
-				console.log(out);
-				fragment.push(out);
-			});
+		for (var i = 0; i < rows.length; i++) {
+			var dom = rows[i].dom;
+			for (var j = 0; j < dom.length; j++) {
+				dom[j].el.nodeValue = data[i][dom[j].name];
+			}
+			$(rows[i].reference).insertBefore(ref);
 		}
 
-		$(el).parent().html(fragment.join(''));
 	}
 
 
 	return {
 		process: process,
 		addAttr: addAttr,
-		repeat:repeat
+		repeat:repeat,
+		loadTextNode:loadTextNode
 	}
 }( window, document ));

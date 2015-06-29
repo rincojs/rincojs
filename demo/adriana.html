@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>adriana's pages</title>
+    <style media="screen">
+      .adriana {
+        color:pink;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="" x-controller="myController">
+      <input type="text" x-model="name" name="name" >
+      <p>
+        You name is {{ name }}
+      </p>
+  </div>
+    <div class="" x-controller="myController2">
+      <input type="text" x-model="name2" name="name" >
+
+      <p>
+        <a class="{{name2}}" href="http://facebook.com/{{name2}}" target="blank" title="">http://facebook.com/{{name2}} {{last}}</a>
+      </p>
+
+  </div>
+    <script src="../dist/rincojs.js"></script>
+  </body>
+</html>

@@ -14,14 +14,17 @@
 var Model = Rinco.Model = function (opt) {
 	this.name = opt.name;
 	this.type = opt.type || 'model';
-	this.value;
+	this.value = '';
 	this.id = Storage.ID++;
 	this.DOM = opt.DOM || [];
 	this.loop = opt.loop || [];
+	this.collections = [];
 
 	Event.listen( this.DOM );
+	this.makeCollections();
 
 	DOM.addAttr(this.DOM, this.id);
+	console.log(this);
 }
 
 _.extend( Model.prototype, {
@@ -46,7 +49,8 @@ _.extend( Model.prototype, {
  	*/
 	update: function() {
 		this.updateDom();
-		this.updateLoops();
+		// this.updateLoops();
+		this.updateCollections();
 
 	},
 	updateDom: function() {
@@ -68,7 +72,24 @@ _.extend( Model.prototype, {
 		var len = this.loop.length, i=0;
 		for(;i < len; i+=1) {
 				DOM.repeat(this.loop[i], this.value);
-				console.log( this.loop[i]);
+				// console.log( this.loop[i]);
+		}
+	},
+	makeCollections: function () {
+
+		var len = this.loop.length, i=0;
+		for(;i < len; i+=1) {
+			this.collections.push(new Collection(this.loop[i]));
+			this.updateCollections();
+		}
+
+	},
+	updateCollections: function () {
+
+		var len = this.collections.length, i=0;
+		for(;i < len; i+=1) {
+			this.collections[i].set(this.value);
+			DOM.repeat(this.collections[i]);
 		}
 	}
 });

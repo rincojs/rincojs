@@ -14,6 +14,8 @@ module.exports = function(grunt) {
           'src/vendor/underscore-min.js',
           'src/_begin.js',
           // 'src/action.js',
+          'src/collection.js',
+          'src/collectionRow.js',
           'src/controller.js',
           'src/dom.js',
           'src/event.js',
