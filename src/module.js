@@ -11,13 +11,7 @@ var Module = (function( window, document ) {
 	}
 
 	function getController( name ) {
-		var len = Storage.cache.controllers.length;
-		for( var i=0; i < len; i+=1 ) {
-			if( Storage.cache.controllers[i].name === name ) {
-				return Storage.cache.controllers[i];
-			}
-		}
-		return false;
+		return Storage.cache.controllers[name];
 	}
 
 	function init( name, fn ) {

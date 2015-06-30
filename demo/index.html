@@ -43,6 +43,9 @@
       <ul>
         <li x-foreach="item in items">{{value}} {{teste}} {{opa}}</li>
       </ul>
+      <ul>
+        <li x-foreach="item in items2">{{value}} {{teste}} {{opa}}</li>
+      </ul>
     </div>
 
     <div x-controller="myController4">
@@ -50,7 +53,12 @@
       <p>
         <a class="{{name}}" href="http://github.com/{{name}}" target="blank" title="">http://github.com/{{name}}</a>
       </p>
+      <div class="" x-if="$showtitle">
+          <h1>Mostrando</h1>
+      </div>
     </div>
+    <script src="./../src/vendor/zepto.min.js"></script>
+    <script src="./../src/vendor/underscore-min.js"></script>
     <script src="./../dist/rincojs.js"></script>
     <script src="assets/js/app.js"></script>
 

@@ -14,7 +14,7 @@
 var Model = Rinco.Model = function (opt) {
 	this.name = opt.name;
 	this.type = opt.type || 'model';
-	this.value = '';
+	this.value = opt.value || '';
 	this.id = Storage.ID++;
 	this.DOM = opt.DOM || [];
 	this.loop = opt.loop || [];

@@ -10,11 +10,12 @@ module.exports = function(grunt) {
       },
       dist: {
         src: [
-          'src/vendor/zepto.min.js',
-          'src/vendor/underscore-min.js',
+          // 'src/vendor/zepto.min.js',
+          // 'src/vendor/underscore-min.js',
           'src/_begin.js',
           // 'src/action.js',
           'src/collection.js',
+          'src/directive.js',
           'src/collectionRow.js',
           'src/controller.js',
           'src/dom.js',

@@ -16,7 +16,23 @@ var DOM = (function( window, document ) {
 		}
 		return tmp;
 	}
+	function getModelFromAttr(el) {
+		var attr, model=[];
+		var re = /in\s*([^\s]+)\s*/;
 
+		for (var i = 0; i < el.length; i++) {
+
+			attr = $(el[i]).attr('x-foreach');
+			var res = re.exec(attr);
+			if (res) {
+				model.push(res[1]);
+				el[res[1]] = el[i];
+			}
+		}
+
+		return model;
+		// body...
+	}
 	function process() {
 
 		var Controller = [];
@@ -33,6 +49,8 @@ var DOM = (function( window, document ) {
 					var ctrName = _controller[ i ].getAttribute( 'x-controller' );
 					var MODELS = loadTextNode( _controller[ i ] );
 					var LOOPS =  _controller[ i ].querySelectorAll( '[x-foreach]' );
+					var DIRECTIVES =  _controller[ i ].querySelectorAll( '[x-if]' );
+					var LOOPMODELS = getModelFromAttr(LOOPS);
 					Model = [];
 
 					var arrModels = _controller[ i ].querySelectorAll( '[x-model]' );
@@ -43,10 +61,14 @@ var DOM = (function( window, document ) {
 						var elements = getTextNodeByModel( modelName, MODELS  );
 						elements.push( arrModels[ j ] );
 
-						Model.push( { name: modelName, DOM: elements, loop: LOOPS.length > 0 ? LOOPS : undefined } )
+						Model.push( { name: modelName, DOM: elements, loop:[] } )
+					}
+					// Collections
+					for (var k = 0; k < LOOPMODELS.length; k++) {
+						Model.push( { name: LOOPMODELS[k], DOM: [], loop: [LOOPS[LOOPMODELS[k]]] } )
 					}
 
-					Controller.push( { name: ctrName, model: Model } );
+					Controller.push( { name: ctrName, model: Model, directive:DIRECTIVES } );
 				}
 			}
 
