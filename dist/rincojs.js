@@ -23,9 +23,9 @@ var Collection = Rinco.Collection = function (el) {
   this.rows = [];
   this.reference = el;
   this.process();
+  this.state = {modrows:[], newrows:[]};
   console.log(this.rows);
 }
-
 Collection.prototype = {
   addRow: function (data){
     var row = new CollectionRow();
@@ -33,36 +33,70 @@ Collection.prototype = {
   removeRow: function (row) {
 
   },
-  compareRow: function (row1, row2) {
-
-  },
   update: function () {
     this.process()
   },
-  process: function () {
+  process: function (val, value) {
+      var value = val || [];
+      // Create rows by data
+      var len = value.length;
+      var i=0, row, obj, elements;
+      var modified=[], newRows=[], delrows=[];
 
-    // Create rows by data
-    var len = this.data.length, i=0, row, obj, elements;
-    for (; i < len; i+=1) {
-      // Create element by element referenc
-      obj = $(this.reference.outerHTML);
-      obj.removeAttr('x-foreach');
+      if(value.length < this.data.length) {
+          delrows = this.rows;
+          this.rows=[];
+      } 
 
-      // Load the TextNode's
-      elements = DOM.loadTextNode(obj[0]);
+      for (; i < len; i+=1) {
 
-      // Instantiate new row
-      row = new CollectionRow(this.data[i], elements, obj);
-      obj.attr('x-cid',this.id);
-      obj.attr('x-rid',row.id);
-      this.rows.push(row);
-    }
+        if(typeof this.rows[i] === 'undefined') {
+
+            // Create element by element referenc
+            obj = $(this.reference.outerHTML);
+            obj.removeAttr('x-foreach');
+
+            // Load the TextNode's
+            elements = DOM.loadTextNode(obj[0]);
+
+            // Instantiate new row
+            row = new CollectionRow(value[i], elements, obj);
+            obj.attr('x-cid',this.id);
+            obj.attr('x-rid',row.id);
+            this.rows[i] = row;
+            newRows.push({index:i, value:value[i], el:this.rows[i]});
+
+        } else {
+            // Check if has the same value
+            // Checks if the values of the array are equals
+             if (!_.isEqual(this.data[i], value[i])) {
+                modified.push({index:i, value:value[i], el:this.rows[i]});
+                // Update the row value
+                this.rows[i].data = value[i];
+             }
+        }
+
+      }
+      Object.deepExtend = function(destination, source) {
+        for (var property in source) {
+          if (source[property] && source[property].constructor &&
+           source[property].constructor === Object) {
+            destination[property] = destination[property] || {};
+            Object.deepExtend(destination[property], source[property]);
+          } else {
+            destination[property] = source[property];
+          }
+        }
+        return destination;
+      };
+
+    this.state = {modrows:modified, newrows:newRows, delrows:delrows};
+    Object.deepExtend(this.data, value);
   },
   set: function (value) {
-      this.data = value;
-      this.update();
+      // this.check(value);
+      this.process(value);
   }
-
 }
 
 
@@ -262,27 +296,54 @@ var DOM = (function( window, document ) {
   	return tpl;
 	}
 
+	function updateValue (els) {
+		for (var i = 0; i < els.length; i++) {
+			els[i].el.nodeValue=els[i].value;
+		}
+	}
+
 	function repeat (collection) {
+
 		var rows = collection.rows;
 		var ref = collection.reference;
 		var data = collection.data;
+		var delrows = collection.state.delrows;
+		var newrows = collection.state.newrows;
+		var modrows = collection.state.modrows;
 
-		for (var i = 0; i < rows.length; i++) {
-			var dom = rows[i].dom;
+		// Delete all rows
+
+		for (var i = 0; i < delrows.length; i++) {
+			var dom = delrows[i].dom;
+			$(delrows[i].reference).remove();
+		}
+
+		// Add new rows
+		for (var i = 0; i < newrows.length; i++) {
+			var dom = newrows[i].el.dom;
 			for (var j = 0; j < dom.length; j++) {
-				dom[j].el.nodeValue = data[i][dom[j].name];
+				dom[j].el.nodeValue = data[newrows[i].index][dom[j].name];
 			}
-			$(rows[i].reference).insertBefore(ref);
+			$(newrows[i].el.reference).insertBefore(ref);
+		}
+
+		// Update the row's value
+
+		for (var i = 0; i < modrows.length; i++) {
+			var dom = modrows[i].el.dom;
+			for (var j = 0; j < dom.length; j++) {
+				dom[j].el.nodeValue = data[modrows[i].index][dom[j].name];
+			}
 		}
 
 	}
-
 
 	return {
 		process: process,
 		addAttr: addAttr,
 		repeat:repeat,
-		loadTextNode:loadTextNode
+		loadTextNode:loadTextNode,
+		updateValue:updateValue
 	}
 }( window, document ));
 
@@ -384,13 +445,6 @@ _.extend( Model.prototype, {
 
 		});
 	},
-	updateLoops: function () {
-		var len = this.loop.length, i=0;
-		for(;i < len; i+=1) {
-				DOM.repeat(this.loop[i], this.value);
-				// console.log( this.loop[i]);
-		}
-	},
 	makeCollections: function () {
 
 		var len = this.loop.length, i=0;
@@ -403,6 +457,7 @@ _.extend( Model.prototype, {
 	updateCollections: function () {
 
 		var len = this.collections.length, i=0;
+		if( !this.value.push ) return;
 		for(;i < len; i+=1) {
 			this.collections[i].set(this.value);
 			DOM.repeat(this.collections[i]);

@@ -1,0 +1,20 @@
+Model
+process
+  checks if row exists
+    if don't
+      create row
+      add to the rows's array
+      add to the new rows' list
+    if exists
+      checks if has the same value
+        if don't
+          add to the modified rows list
+          update the row's value
+DOM
+  repeat
+    checks if has new rows to create
+      if has
+        create element
+    checks if has modified rows to update
+      if has
+        update the element

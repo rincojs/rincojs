@@ -126,26 +126,53 @@ var DOM = (function( window, document ) {
   	return tpl;
 	}
 
+	function updateValue (els) {
+		for (var i = 0; i < els.length; i++) {
+			els[i].el.nodeValue=els[i].value;
+		}
+	}
+
 	function repeat (collection) {
+
 		var rows = collection.rows;
 		var ref = collection.reference;
 		var data = collection.data;
+		var delrows = collection.state.delrows;
+		var newrows = collection.state.newrows;
+		var modrows = collection.state.modrows;
 
-		for (var i = 0; i < rows.length; i++) {
-			var dom = rows[i].dom;
+		// Delete all rows
+
+		for (var i = 0; i < delrows.length; i++) {
+			var dom = delrows[i].dom;
+			$(delrows[i].reference).remove();
+		}
+
+		// Add new rows
+		for (var i = 0; i < newrows.length; i++) {
+			var dom = newrows[i].el.dom;
 			for (var j = 0; j < dom.length; j++) {
-				dom[j].el.nodeValue = data[i][dom[j].name];
+				dom[j].el.nodeValue = data[newrows[i].index][dom[j].name];
 			}
-			$(rows[i].reference).insertBefore(ref);
+			$(newrows[i].el.reference).insertBefore(ref);
+		}
+
+		// Update the row's value
+
+		for (var i = 0; i < modrows.length; i++) {
+			var dom = modrows[i].el.dom;
+			for (var j = 0; j < dom.length; j++) {
+				dom[j].el.nodeValue = data[modrows[i].index][dom[j].name];
+			}
 		}
 
 	}
-
 
 	return {
 		process: process,
 		addAttr: addAttr,
 		repeat:repeat,
-		loadTextNode:loadTextNode
+		loadTextNode:loadTextNode,
+		updateValue:updateValue
 	}
 }( window, document ));

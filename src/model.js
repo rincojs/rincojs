@@ -68,13 +68,6 @@ _.extend( Model.prototype, {
 
 		});
 	},
-	updateLoops: function () {
-		var len = this.loop.length, i=0;
-		for(;i < len; i+=1) {
-				DOM.repeat(this.loop[i], this.value);
-				// console.log( this.loop[i]);
-		}
-	},
 	makeCollections: function () {
 
 		var len = this.loop.length, i=0;
@@ -87,6 +80,7 @@ _.extend( Model.prototype, {
 	updateCollections: function () {
 
 		var len = this.collections.length, i=0;
+		if( !this.value.push ) return;
 		for(;i < len; i+=1) {
 			this.collections[i].set(this.value);
 			DOM.repeat(this.collections[i]);
