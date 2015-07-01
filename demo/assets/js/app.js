@@ -16,7 +16,7 @@ Rinco.Controller( 'myController4', function( self ) {
 	setTimeout(function() {
 		self.setModel('showtitle', true );
 	  // body...
-	},2000);
+	},500);
 });
 Rinco.Controller( 'myController3', function( self ) {
 	// this.setModel( 'githubName', 'allanesquina' );

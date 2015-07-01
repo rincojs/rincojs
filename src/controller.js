@@ -71,6 +71,15 @@ Controller.prototype.fireDirectives = function() {
 		this.directives[i].process();
 	}
 }
+Controller.prototype.updateModels = function() {
+	for (var i = 0; i < this.model.length; i++) {
+		this.model[i].update();
+	}
+}
+Controller.prototype.update = function() {
+	this.updateModels();
+	this.fireDirectives();
+}
 Controller.prototype.process = function() {
 	for (var i = 0; i < this.directive.length; i++) {
 		var exp = $(this.directive[i]).attr('x-if');

@@ -35,11 +35,11 @@ Directive.prototype = {
         res[3] = 'Storage.cache.controllers[this.controller].getModelByName(name.substr(1)).value';
       }
       try {
-        var result = eval(res[1] || '' + res[2] || '' + res[3] || '');
+        var result = eval((res[1] || '') + (res[2] || '') + (res[3] || ''));
       } catch (e) {
           result = false;
       }
-      console.log('res[1] + res[2] + res[3]');
+      console.log(res[1] + res[2] + res[3]);
       console.log(result);
       console.log(res);
       if(result) {

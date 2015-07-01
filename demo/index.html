@@ -39,7 +39,10 @@
 
 
     <div x-controller="myController3">
-      <input type="hidden"  x-model="loop" />
+      <input type="text"  x-model="lopp" />
+      <p>
+        <a  href="#" x-onclick="$items[]=$loop" title="">add</a>
+      </p>
       <ul>
         <li x-foreach="item in items">{{value}} {{teste}} {{opa}}</li>
       </ul>
@@ -54,13 +57,13 @@
         <a class="{{name}}" href="http://github.com/{{name}}" target="blank" title="">http://github.com/{{name}}</a>
       </p>
 
-      <a href="#" onclick="ctr.setModel('showtitle', false)">hidde</a>
+      <a href="#" x-onclick="$showtitle=false">hidde</a>
 
       <div class="" x-if="$showtitle">
           <h1>Show</h1>
       </div>
-      <div class="" x-onclick="click">
-        asdfasdf
+      <div class="" x-onclick="$showtitle=true">
+          show
       </div>
       <div class="" x-onclick="dblclick">
 asdfasdfj

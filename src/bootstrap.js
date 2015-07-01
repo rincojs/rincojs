@@ -21,6 +21,8 @@ var Bootstrap = Rinco.Bootstrap = (function() {
       instance.process();
       Storage.cache.controllers[instance.name] = instance;
     }
+    // Initiate the event delegate
+    Event.process();
   }
 
   function init () {

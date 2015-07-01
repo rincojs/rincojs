@@ -126,11 +126,11 @@ Directive.prototype = {
         res[3] = 'Storage.cache.controllers[this.controller].getModelByName(name.substr(1)).value';
       }
       try {
-        var result = eval(res[1] || '' + res[2] || '' + res[3] || '');
+        var result = eval((res[1] || '') + (res[2] || '') + (res[3] || ''));
       } catch (e) {
           result = false;
       }
-      console.log('res[1] + res[2] + res[3]');
+      console.log(res[1] + res[2] + res[3]);
       console.log(result);
       console.log(res);
       if(result) {
@@ -236,6 +236,15 @@ Controller.prototype.fireDirectives = function() {
 	for (var i = 0; i < this.directives.length; i++) {
 		this.directives[i].process();
 	}
+}
+Controller.prototype.updateModels = function() {
+	for (var i = 0; i < this.model.length; i++) {
+		this.model[i].update();
+	}
+}
+Controller.prototype.update = function() {
+	this.updateModels();
+	this.fireDirectives();
 }
 Controller.prototype.process = function() {
 	for (var i = 0; i < this.directive.length; i++) {
@@ -476,26 +485,62 @@ var Event = (function( window, document ) {
 		// console.log(  Storage.cache.models[ id ] )
 	}
 
+	function process() {
+		$('body').on('click', function(event) {
+			  var e=event.target, b, c;
+			  while(e.parentNode) {
+					c = e.getAttribute('x-onclick');
+			    if (c) {
+			        b = e;
+			        do {
+			          if (b.getAttribute('x-controller')) {
+									var exp = c;
+									var controller = b.getAttribute('x-controller');
+									callback(exp, controller);
+			            console.log(b.getAttribute('x-controller'));
+			            break;
+			          }
+			        } while (b = b.parentNode);
+			    }
+			    e = e.parentNode;
+			  }
+		});
+	}
+	function callback(expression, controller) {
+
+		var re = /\s*([^\s\!\+\-\>\<\*\%\=]+)\s*([\!\+\-\>\<\*\%\=]+)?\s*([^\s\!\+\-\>\<\*\%\=]+)?\s*/g;
+    var res = re.exec(expression);
+    if (res) {
+      // Replace variables for models
+      if(res[1].indexOf('$') !== -1) {
+        var name = res[1];
+        res[1] = 'Storage.cache.controllers[controller].getModelByName(name.substr(1)).value';
+      }
+      if(res[3] && res[3].indexOf('$') !== -1) {
+        var name = res[3];
+        res[3] = 'Storage.cache.controllers[controller].getModelByName(name.substr(1)).value';
+      }
+      try {
+
+        var result = eval((res[1] || '') + (res[2] || '') + (res[3] || ''));
+				// Update all models and directives of the controller
+				Storage.cache.controllers[controller].update();
+      } catch (e) {
+          result = false;
+      }
+      console.log(res[1] + res[2] + res[3]);
+      console.log(result);
+      console.log(res);
+    }
+		// body...
+	}
+
 	return {
-		listen: bind
+		listen: bind,
+		process: process
 	}
 
 }( window, document ));
-// document.body.onclick = function(event) {
-//   var e=event.target, b;
-//   while(e.parentNode) {
-//     if (e.getAttribute('x-onclick')) {
-//         b = e;
-//         do {
-//           if (b.getAttribute('x-controller')) {
-//             console.log(b.getAttribute('x-controller'));
-//             break;
-//           }
-//         } while (b = b.parentNode);
-//     }
-//     e = e.parentNode;
-//   }
-// }
 
 
 /**
@@ -653,6 +698,8 @@ var Bootstrap = Rinco.Bootstrap = (function() {
       instance.process();
       Storage.cache.controllers[instance.name] = instance;
     }
+    // Initiate the event delegate
+    Event.process();
   }
 
   function init () {
