@@ -212,7 +212,7 @@ Controller.prototype.setModel = function( name, value ) {
 				this.model[ i ].set( value.call() );
 			} else {
 				this.model[ i ].set( value );
-			}
+		 }
 		}
 	}
 	// Create a new model if then did not found
@@ -288,10 +288,19 @@ var DOM = (function( window, document ) {
 			// Find controllers directives
 			_controller = document.querySelectorAll( '[x-controller]' );
 			cLen = _controller.length;
+			var sufix = ['click', 'blur', 'focus', 'dblclick'],ONDIRECTIVES;
 
 			if( cLen > 0 ) {
 				// link controller
+				// Get the events attr
 				for( var i=0; i < cLen; i+=1 ) {
+					ONDIRECTIVES =[];
+					for (var x = 0; x < sufix.length; x++) {
+						var tm = _controller[ i ].querySelectorAll( '[x-on' + sufix[x] + ']' )
+						if(tm.length > 0) {
+							_.extend( ONDIRECTIVES, _controller[ i ].querySelectorAll( '[x-on' + sufix[x] + ']' ), ONDIRECTIVES)
+						}
+					}
 
 					var ctrName = _controller[ i ].getAttribute( 'x-controller' );
 					var MODELS = loadTextNode( _controller[ i ] );
@@ -315,7 +324,7 @@ var DOM = (function( window, document ) {
 						Model.push( { name: LOOPMODELS[k], DOM: [], loop: [LOOPS[LOOPMODELS[k]]] } )
 					}
 
-					Controller.push( { name: ctrName, model: Model, directive:DIRECTIVES } );
+					Controller.push( { name: ctrName, model: Model, directive:DIRECTIVES, on:ONDIRECTIVES } );
 				}
 			}
 
@@ -472,6 +481,21 @@ var Event = (function( window, document ) {
 	}
 
 }( window, document ));
+// document.body.onclick = function(event) {
+//   var e=event.target, b;
+//   while(e.parentNode) {
+//     if (e.getAttribute('x-onclick')) {
+//         b = e;
+//         do {
+//           if (b.getAttribute('x-controller')) {
+//             console.log(b.getAttribute('x-controller'));
+//             break;
+//           }
+//         } while (b = b.parentNode);
+//     }
+//     e = e.parentNode;
+//   }
+// }
 
 
 /**
@@ -622,12 +646,12 @@ var Bootstrap = Rinco.Bootstrap = (function() {
         Storage.cache.models[ modelInstance.id ] = modelInstance;
       }
 
-      instance = new Controller( Storage.controller[ i ].name, Storage.controller[i].directive  );
-      Storage.cache.controllers[instance.name]=instance;
+      instance = new Controller( Storage.controller[ i ].name );
+      instance.directive = Storage.controller[ i ].directive;
       instance.model = Models;
-      instance.directive =  Storage.controller[i].directive;
+      instance.on = Storage.controller[ i ].on;
       instance.process();
-      console.log(Storage.controller[i].directive);
+      Storage.cache.controllers[instance.name] = instance;
     }
   }
 

@@ -23,3 +23,18 @@ var Event = (function( window, document ) {
 	}
 
 }( window, document ));
+// document.body.onclick = function(event) {
+//   var e=event.target, b;
+//   while(e.parentNode) {
+//     if (e.getAttribute('x-onclick')) {
+//         b = e;
+//         do {
+//           if (b.getAttribute('x-controller')) {
+//             console.log(b.getAttribute('x-controller'));
+//             break;
+//           }
+//         } while (b = b.parentNode);
+//     }
+//     e = e.parentNode;
+//   }
+// }

@@ -46,7 +46,7 @@ Controller.prototype.setModel = function( name, value ) {
 				this.model[ i ].set( value.call() );
 			} else {
 				this.model[ i ].set( value );
-			}
+		 }
 		}
 	}
 	// Create a new model if then did not found

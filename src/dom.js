@@ -41,10 +41,19 @@ var DOM = (function( window, document ) {
 			// Find controllers directives
 			_controller = document.querySelectorAll( '[x-controller]' );
 			cLen = _controller.length;
+			var sufix = ['click', 'blur', 'focus', 'dblclick'],ONDIRECTIVES;
 
 			if( cLen > 0 ) {
 				// link controller
+				// Get the events attr
 				for( var i=0; i < cLen; i+=1 ) {
+					ONDIRECTIVES =[];
+					for (var x = 0; x < sufix.length; x++) {
+						var tm = _controller[ i ].querySelectorAll( '[x-on' + sufix[x] + ']' )
+						if(tm.length > 0) {
+							_.extend( ONDIRECTIVES, _controller[ i ].querySelectorAll( '[x-on' + sufix[x] + ']' ), ONDIRECTIVES)
+						}
+					}
 
 					var ctrName = _controller[ i ].getAttribute( 'x-controller' );
 					var MODELS = loadTextNode( _controller[ i ] );
@@ -68,7 +77,7 @@ var DOM = (function( window, document ) {
 						Model.push( { name: LOOPMODELS[k], DOM: [], loop: [LOOPS[LOOPMODELS[k]]] } )
 					}
 
-					Controller.push( { name: ctrName, model: Model, directive:DIRECTIVES } );
+					Controller.push( { name: ctrName, model: Model, directive:DIRECTIVES, on:ONDIRECTIVES } );
 				}
 			}
 

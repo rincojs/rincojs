@@ -8,13 +8,15 @@
 //
 var val = [{value:'aperson', teste:'avalue', opa:'aaeee'}, {value:'ibanez'},{value:'gibson'}, {value:'ayamaha'}];
 var icount = 0;
+var ctr;
 Rinco.Controller( 'myController4', function( self ) {
 
+	ctr=this;
 	self.setModel('showtitle', false );
 	setTimeout(function() {
 		self.setModel('showtitle', true );
 	  // body...
-	}, 2000);
+	},2000);
 });
 Rinco.Controller( 'myController3', function( self ) {
 	// this.setModel( 'githubName', 'allanesquina' );

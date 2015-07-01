@@ -14,12 +14,12 @@ var Bootstrap = Rinco.Bootstrap = (function() {
         Storage.cache.models[ modelInstance.id ] = modelInstance;
       }
 
-      instance = new Controller( Storage.controller[ i ].name, Storage.controller[i].directive  );
-      Storage.cache.controllers[instance.name]=instance;
+      instance = new Controller( Storage.controller[ i ].name );
+      instance.directive = Storage.controller[ i ].directive;
       instance.model = Models;
-      instance.directive =  Storage.controller[i].directive;
+      instance.on = Storage.controller[ i ].on;
       instance.process();
-      console.log(Storage.controller[i].directive);
+      Storage.cache.controllers[instance.name] = instance;
     }
   }
 
