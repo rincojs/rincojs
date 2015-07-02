@@ -5,6 +5,53 @@
 	var Rinco = {};
 
 
+// Action Module
+var Action = (function( window, document ) {
+
+	var queue = [];
+	var actionList = [];
+
+	function addToQueue( name ) {
+		if( queue.indexOf( name ) === -1 ) {
+			queue.push( name );
+		}
+	}
+	function getQueue() {
+		return queue;
+	}
+	function clearQueue( value ) {
+		queue = [];
+	}
+
+	function register( name, fn, scope ) {
+		if( typeof name === 'string' ) {
+			actionList[ name ] = actionList[ name ] || [];
+			actionList[ name ].push( {scope: scope, fn:fn} );
+		}
+	}
+
+	function fire( name ) {
+		var length = actionList[ name  ].length, i=0;
+		// Check if there's event to fire
+		if( length > 0 ) {
+			// Fire the events
+			for( ; i <  length; i+=1 ) {
+				actionList[ name ][ i ].fn.call(actionList[ name ][ i ].scope);
+				console.log( 2)
+			}
+		}
+	}
+
+	return {
+		register: register,
+		addToQueue: addToQueue,
+		getQueue: getQueue,
+		clearQueue: clearQueue,
+		fire:fire
+	}
+}( window, document ));
+
+
 // Collection constructor
 var Collection = Rinco.Collection = function (el) {
   this.id = Storage.collectionID++;
@@ -113,6 +160,28 @@ var Directive = Rinco.Directive = function(exp, controller, reference) {
 */
 Directive.prototype = {
   process: function () {
+  var result = false;
+
+    var expression = this.expression.replace(/\$([a-z_][a-z0-9]*)/gi, 'Storage.cache.controllers["' + this.controller + '"].getModelByName("$1").value');
+
+  try {
+  	result = Function.call(null, 'Storage', 'return ' + expression)(Storage);
+
+    } catch (e) {
+
+    }
+
+
+
+		// Storage.cache.controllers[this.controller].update();
+    if(result) {
+        $(this.reference).show();
+      } else {
+        $(this.reference).hide();
+      }
+
+		// Storage.cache.controllers[this.controller].update();
+    return;
 		var re = /\s*([^\s\!\+\-\>\<\*\%\=]+)\s*([\!\+\-\>\<\*\%\=]+)?\s*([^\s\!\+\-\>\<\*\%\=]+)?\s*/g;
     var res = re.exec(this.expression);
     if (res) {
@@ -182,6 +251,8 @@ function Controller( name ) {
 	this.directive =[];
 	this.directives=[];
 	console.log(this);
+
+	Action.register('updateDirectives', this.fireDirectives, this);
 }
 
 /**
@@ -356,6 +427,9 @@ var DOM = (function( window, document ) {
 		var modelx = [];
 
 		(function a(node) {
+			if(node.id == 'x') {
+				console.log('fdp', node);
+			}
 			if($(node).attr('x-foreach')) return
 			// text node
 			if (node.nodeType == 3) {
@@ -439,7 +513,16 @@ var DOM = (function( window, document ) {
 		for (var i = 0; i < newrows.length; i++) {
 			var dom = newrows[i].el.dom;
 			for (var j = 0; j < dom.length; j++) {
-				dom[j].el.nodeValue = data[newrows[i].index][dom[j].name];
+				if( dom[j].el.nodeValue !== '') {
+
+					dom[j].el.nodeValue = dom[j].el.nodeValue.replace(/{{\s*([^}]+)\s*}}/g, function(a, b) {
+						return data[newrows[i].index][b];
+					})
+				} else {
+					dom[j].el.nodeValue = data[newrows[i].index][dom[j].name];
+				}
+
+				//dom[j].el.nodeValue = data[newrows[i].index][dom[j].name];
 			}
 			$(newrows[i].el.reference).insertBefore(ref);
 		}
@@ -449,7 +532,11 @@ var DOM = (function( window, document ) {
 		for (var i = 0; i < modrows.length; i++) {
 			var dom = modrows[i].el.dom;
 			for (var j = 0; j < dom.length; j++) {
-				dom[j].el.nodeValue = data[modrows[i].index][dom[j].name];
+				// dom[j].el.nodeValue = data[modrows[i].index][dom[j].name];
+
+				dom[j].el.nodeValue = dom[j].el.nodeValue.replace(/{{\s*([^}]+)\s*}}/g, function(a, b) {
+					return 'teste' + data[modrows[i].index][b];
+				})
 			}
 		}
 
@@ -507,6 +594,12 @@ var Event = (function( window, document ) {
 		});
 	}
 	function callback(expression, controller) {
+		// reajustando a string
+		expression = expression.replace(/\$([a-z_][a-z0-9]*)/gi, 'Storage.cache.controllers["' + controller + '"].getModelByName("$1").value');
+		Function.call(null, 'Storage', 'return ' + expression)(Storage);
+
+		Storage.cache.controllers[controller].update();
+		return;
 
 		var re = /\s*([^\s\!\+\-\>\<\*\%\=]+)\s*([\!\+\-\>\<\*\%\=]+)?\s*([^\s\!\+\-\>\<\*\%\=]+)?\s*/g;
     var res = re.exec(expression);
@@ -596,6 +689,7 @@ _.extend( Model.prototype, {
 		this.updateDom();
 		// this.updateLoops();
 		this.updateCollections();
+		Action.fire('updateDirectives');
 
 	},
 	updateDom: function() {

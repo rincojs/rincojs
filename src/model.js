@@ -51,6 +51,7 @@ _.extend( Model.prototype, {
 		this.updateDom();
 		// this.updateLoops();
 		this.updateCollections();
+		Action.fire('updateDirectives');
 
 	},
 	updateDom: function() {

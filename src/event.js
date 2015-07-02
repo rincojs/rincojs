@@ -40,6 +40,12 @@ var Event = (function( window, document ) {
 		});
 	}
 	function callback(expression, controller) {
+		// reajustando a string
+		expression = expression.replace(/\$([a-z_][a-z0-9]*)/gi, 'Storage.cache.controllers["' + controller + '"].getModelByName("$1").value');
+		Function.call(null, 'Storage', 'return ' + expression)(Storage);
+
+		Storage.cache.controllers[controller].update();
+		return;
 
 		var re = /\s*([^\s\!\+\-\>\<\*\%\=]+)\s*([\!\+\-\>\<\*\%\=]+)?\s*([^\s\!\+\-\>\<\*\%\=]+)?\s*/g;
     var res = re.exec(expression);

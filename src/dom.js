@@ -100,6 +100,9 @@ var DOM = (function( window, document ) {
 		var modelx = [];
 
 		(function a(node) {
+			if(node.id == 'x') {
+				console.log('fdp', node);
+			}
 			if($(node).attr('x-foreach')) return
 			// text node
 			if (node.nodeType == 3) {
@@ -183,7 +186,16 @@ var DOM = (function( window, document ) {
 		for (var i = 0; i < newrows.length; i++) {
 			var dom = newrows[i].el.dom;
 			for (var j = 0; j < dom.length; j++) {
-				dom[j].el.nodeValue = data[newrows[i].index][dom[j].name];
+				if( dom[j].el.nodeValue !== '') {
+
+					dom[j].el.nodeValue = dom[j].el.nodeValue.replace(/{{\s*([^}]+)\s*}}/g, function(a, b) {
+						return data[newrows[i].index][b];
+					})
+				} else {
+					dom[j].el.nodeValue = data[newrows[i].index][dom[j].name];
+				}
+
+				//dom[j].el.nodeValue = data[newrows[i].index][dom[j].name];
 			}
 			$(newrows[i].el.reference).insertBefore(ref);
 		}
@@ -193,7 +205,11 @@ var DOM = (function( window, document ) {
 		for (var i = 0; i < modrows.length; i++) {
 			var dom = modrows[i].el.dom;
 			for (var j = 0; j < dom.length; j++) {
-				dom[j].el.nodeValue = data[modrows[i].index][dom[j].name];
+				// dom[j].el.nodeValue = data[modrows[i].index][dom[j].name];
+
+				dom[j].el.nodeValue = dom[j].el.nodeValue.replace(/{{\s*([^}]+)\s*}}/g, function(a, b) {
+					return 'teste' + data[modrows[i].index][b];
+				})
 			}
 		}
 

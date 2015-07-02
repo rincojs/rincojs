@@ -16,6 +16,8 @@ function Controller( name ) {
 	this.directive =[];
 	this.directives=[];
 	console.log(this);
+
+	Action.register('updateDirectives', this.fireDirectives, this);
 }
 
 /**

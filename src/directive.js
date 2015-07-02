@@ -22,6 +22,28 @@ var Directive = Rinco.Directive = function(exp, controller, reference) {
 */
 Directive.prototype = {
   process: function () {
+  var result = false;
+
+    var expression = this.expression.replace(/\$([a-z_][a-z0-9]*)/gi, 'Storage.cache.controllers["' + this.controller + '"].getModelByName("$1").value');
+
+  try {
+  	result = Function.call(null, 'Storage', 'return ' + expression)(Storage);
+
+    } catch (e) {
+
+    }
+
+
+
+		// Storage.cache.controllers[this.controller].update();
+    if(result) {
+        $(this.reference).show();
+      } else {
+        $(this.reference).hide();
+      }
+
+		// Storage.cache.controllers[this.controller].update();
+    return;
 		var re = /\s*([^\s\!\+\-\>\<\*\%\=]+)\s*([\!\+\-\>\<\*\%\=]+)?\s*([^\s\!\+\-\>\<\*\%\=]+)?\s*/g;
     var res = re.exec(this.expression);
     if (res) {
