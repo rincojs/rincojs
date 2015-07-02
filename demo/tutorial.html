@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>rincojs demo</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" media="screen" title="no title" charset="utf-8">
+  </head>
+  <body>
+    <div class='container ' x-controller="app">
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Application</h3>
+        </div>
+        <h1>My name is {{name}}</h1>
+        <div class="panel-body">
+
+          <input type="text" x-model="name" name="name" value="">
+        </div>
+        <div class="panel-footer">
+
+        </div>
+      </div>
+    </div>
+    <script src="./../src/vendor/zepto.min.js"></script>
+    <script src="./../src/vendor/underscore-min.js"></script>
+    <script src="./../dist/rincojs.js"></script>
+    <script src="assets/js/app.js"></script>
+  </body>
+</html>
