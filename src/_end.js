@@ -3,4 +3,4 @@
 	window.rincostorage = Storage;
 	window.r = Rinco;
 
-}( window, document, Zepto ));
+}( window, document));

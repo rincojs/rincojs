@@ -12,6 +12,7 @@ module.exports = function(grunt) {
         src: [
           // 'src/vendor/zepto.min.js',
           // 'src/vendor/underscore-min.js',
+          'src/vendor/jqLite.js',
           'src/_begin.js',
           'src/action.js',
           'src/collection.js',
@@ -59,7 +60,7 @@ module.exports = function(grunt) {
     },
 
     watch: {
-      files: ['src/*.js'],
+      files: ['src/*.js', 'src/vendor/*.js'],
       tasks: ['doc','concat']
     },
 
