@@ -423,10 +423,10 @@ var DOM = (function( window, document ) {
 
 	function loadTextNode( el ) {
 
-		var re = /{{\s*([^\s}]+)\s*}}/g, x = 0, res, bck;
 		var modelx = [];
 
 		(function a(node) {
+			var res, re = /{{\s*([^\s}]+)\s*}}/g, bck;
 			if(node.id == 'x') {
 				console.log('fdp', node);
 			}
@@ -456,11 +456,15 @@ var DOM = (function( window, document ) {
 						}
 					}
 				}
-
-				for (var i=0; i < node.childNodes.length; i++) {
-					a(node.childNodes[i]);
-				}
 			}
+
+
+			for (var i=0; i < node.childNodes.length; i++) {
+				a(node.childNodes[i]);
+			}
+
+
+
 		}( el ));
 		return modelx;
 	}
@@ -516,14 +520,22 @@ var DOM = (function( window, document ) {
 				if( dom[j].el.nodeValue !== '') {
 
 					dom[j].el.nodeValue = dom[j].el.nodeValue.replace(/{{\s*([^}]+)\s*}}/g, function(a, b) {
+						if(b==="$index") {
+								return newrows[i].index;
+						}
 						return data[newrows[i].index][b];
 					})
 				} else {
-					dom[j].el.nodeValue = data[newrows[i].index][dom[j].name];
+					if(dom[j].name==='$index') {
+						dom[j].el.nodeValue = newrows[i].index;
+					} else {
+						dom[j].el.nodeValue = data[newrows[i].index][dom[j].name];
+					}
 				}
 
 				//dom[j].el.nodeValue = data[newrows[i].index][dom[j].name];
 			}
+
 			$(newrows[i].el.reference).insertBefore(ref);
 		}
 
@@ -535,7 +547,10 @@ var DOM = (function( window, document ) {
 				// dom[j].el.nodeValue = data[modrows[i].index][dom[j].name];
 
 				dom[j].el.nodeValue = dom[j].el.nodeValue.replace(/{{\s*([^}]+)\s*}}/g, function(a, b) {
-					return 'teste' + data[modrows[i].index][b];
+					if(b==="$index") {
+							return modrows[i].index;
+					}
+					return data[modrows[i].index][b];
 				})
 			}
 		}

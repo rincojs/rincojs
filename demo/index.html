@@ -18,7 +18,7 @@
           <div class="alert alert-warning" x-if="$name.length < 3">higher than 3</div>
           <br>
            <ul class="list-group">
-             <li class="list-group-item" x-foreach="name in names">{{name}} {{last}}</li>
+             <li class="list-group-item" id="x" x-onclick="$names.splice({{$index}}, 1)" x-foreach="name in names">{{name}} {{$index}} {{last}}</li>
            </ul>
         </div>
         <div class="panel-footer">
