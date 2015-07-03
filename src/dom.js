@@ -101,7 +101,7 @@ var DOM = (function( window, document ) {
 		(function a(node) {
 			var res, re = /{{\s*([^\s}]+)\s*}}/g, bck;
 			if(node.id == 'x') {
-				console.log('fdp', node);
+				// console.log(node);
 			}
 			if($(node).attr('x-foreach')) return
 			// text node
@@ -207,9 +207,10 @@ var DOM = (function( window, document ) {
 				}
 
 				//dom[j].el.nodeValue = data[newrows[i].index][dom[j].name];
+				ref.parentNode.insertBefore( newrows[i].el.reference[0], ref);
 			}
 
-			$(newrows[i].el.reference).insertBefore(ref);
+			// $(newrows[i].el.reference).insertBefore(ref);
 		}
 
 		// Update the row's value

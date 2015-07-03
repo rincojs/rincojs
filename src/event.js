@@ -1,7 +1,7 @@
 // Event Module
 var Event = (function( window, document ) {
 
-	var types = [ 'click', 'keydown', 'keyup', 'mouseout' ], len=types.length;
+	var types = [  ], len=types.length;
 
 	function bind( obj ){
 		for( var j=0, length = obj.length; j < length; j+=1 ) {
@@ -19,7 +19,9 @@ var Event = (function( window, document ) {
 	}
 
 	function process() {
-		$('body').on('click', function(event) {
+		$('body').on('click keydown keyup', function(event) {
+			console.log(event);
+
 			  var e=event.target, b, c;
 			  while(e.parentNode) {
 					c = e.getAttribute('x-onclick');
@@ -40,38 +42,11 @@ var Event = (function( window, document ) {
 		});
 	}
 	function callback(expression, controller) {
+
 		// reajustando a string
 		expression = expression.replace(/\$([a-z_][a-z0-9]*)/gi, 'Storage.cache.controllers["' + controller + '"].getModelByName("$1").value');
 		Function.call(null, 'Storage', 'return ' + expression)(Storage);
-
 		Storage.cache.controllers[controller].update();
-		return;
-
-		var re = /\s*([^\s\!\+\-\>\<\*\%\=]+)\s*([\!\+\-\>\<\*\%\=]+)?\s*([^\s\!\+\-\>\<\*\%\=]+)?\s*/g;
-    var res = re.exec(expression);
-    if (res) {
-      // Replace variables for models
-      if(res[1].indexOf('$') !== -1) {
-        var name = res[1];
-        res[1] = 'Storage.cache.controllers[controller].getModelByName(name.substr(1)).value';
-      }
-      if(res[3] && res[3].indexOf('$') !== -1) {
-        var name = res[3];
-        res[3] = 'Storage.cache.controllers[controller].getModelByName(name.substr(1)).value';
-      }
-      try {
-
-        var result = eval((res[1] || '') + (res[2] || '') + (res[3] || ''));
-				// Update all models and directives of the controller
-				Storage.cache.controllers[controller].update();
-      } catch (e) {
-          result = false;
-      }
-      console.log(res[1] + res[2] + res[3]);
-      console.log(result);
-      console.log(res);
-    }
-		// body...
 	}
 
 	return {
