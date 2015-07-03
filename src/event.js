@@ -1,7 +1,7 @@
 // Event Module
 var Event = (function( window, document ) {
 
-	var types = [  ], len=types.length;
+	var types = [ 'keyup', 'keydown' ], len=types.length;
 
 	function bind( obj ){
 		for( var j=0, length = obj.length; j < length; j+=1 ) {
@@ -19,19 +19,19 @@ var Event = (function( window, document ) {
 	}
 
 	function process() {
-		$('body').on('click keydown keyup', function(event) {
-			console.log(event);
-
+		$('body').on('click', function(event) {
 			  var e=event.target, b, c;
+				console.log(event.type);
 			  while(e.parentNode) {
-					c = e.getAttribute('x-onclick');
+					c = e.getAttribute('x-on' + event.type) ;
 			    if (c) {
 			        b = e;
 			        do {
 			          if (b.getAttribute('x-controller')) {
 									var exp = c;
 									var controller = b.getAttribute('x-controller');
-									callback(exp, controller);
+									var id = b.getAttribute( 'x-id' ) || '';
+									callback(exp, controller, id);
 			            console.log(b.getAttribute('x-controller'));
 			            break;
 			          }
@@ -41,7 +41,7 @@ var Event = (function( window, document ) {
 			  }
 		});
 	}
-	function callback(expression, controller) {
+	function callback(expression, controller, id) {
 
 		// reajustando a string
 		expression = expression.replace(/\$([a-z_][a-z0-9]*)/gi, 'Storage.cache.controllers["' + controller + '"].getModelByName("$1").value');

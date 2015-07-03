@@ -13,7 +13,7 @@
           <h3 class="panel-title">Hello</h3>
         </div>
         <div class="panel-body">
-          <input type='text' x-model="name" class='form-control input-lg' placeholder="What's my name?" >
+          <input type='text' x-onblur="alert('fodase')" x-model="name" class='form-control input-lg' placeholder="What's my name?" >
           <div class="alert alert-success" x-if="$name=='Doe'">nice, thanks :)</div>
           <div class="alert alert-warning" x-if="$name.length < 3">higher than 3</div>
           <br>
@@ -23,7 +23,7 @@
         </div>
         <div class="panel-footer">
 
-          <button class="btn btn-{{name}}" x-onclick="$names.push({name:$name})" data-toggle="modal" data-target="#">
+          <button class="btn btn-{{name}}" x-onclick="$names[2].name='changed'" data-toggle="modal" data-target="#">
             add {{name}}
           </button>
         </div>
