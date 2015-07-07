@@ -12,8 +12,20 @@ var Event = (function( window, document ) {
 	}
 
 	function receive( event ) {
-		var el = event.target, id = el.getAttribute( 'x-id' );
-		Storage.cache.models[ id ].set( el.value );
+		var el = event.target,
+			id = el.getAttribute( 'x-id' ),
+			expression = el.getAttribute('x-keypress') || '',
+			controller = Storage.cache.models[ id ].controller;
+
+Storage.cache.models[ id ].set( el.value );
+
+		// reajustando a string
+		expression = expression.replace(/\$([a-z_][a-z0-9]*)/gi, 'Storage.cache.controllers["' + controller + '"].getModelByName("$1")');
+		console.log(expression);
+		Function.call(null, 'Storage', 'return ' + expression)(Storage);
+		// Storage.cache.controllers[controller].update();
+
+
 		// Action.addToQueue( Storage.Model[ id ].name );
 		// console.log(  Storage.cache.models[ id ] )
 	}
@@ -23,7 +35,7 @@ var Event = (function( window, document ) {
 			  var e=event.target, b, c;
 				console.log(event.type);
 			  while(e.parentNode) {
-					c = e.getAttribute('x-on' + event.type) ;
+					c = e.getAttribute('x-onclick') ;
 			    if (c) {
 			        b = e;
 			        do {

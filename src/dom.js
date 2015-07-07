@@ -70,7 +70,7 @@ var DOM = (function( window, document ) {
 						var elements = getTextNodeByModel( modelName, MODELS  );
 						elements.push( arrModels[ j ] );
 
-						Model.push( { name: modelName, DOM: elements, loop:[] } )
+						Model.push( { name: modelName, DOM: elements, loop:[], controller:ctrName } )
 					}
 					// Collections
 					for (var k = 0; k < LOOPMODELS.length; k++) {

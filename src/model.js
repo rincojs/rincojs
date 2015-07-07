@@ -19,6 +19,7 @@ var Model = Rinco.Model = function (opt) {
 	this.DOM = opt.DOM || [];
 	this.loop = opt.loop || [];
 	this.collections = [];
+	this.controller = opt.controller || '';
 
 	Event.listen( this.DOM );
 	this.makeCollections();
@@ -81,7 +82,7 @@ _.extend( Model.prototype, {
 	updateCollections: function () {
 
 		var len = this.collections.length, i=0;
-		if( !this.value.push ) return;
+		if( this.value && !this.value.push ) return;
 		for(;i < len; i+=1) {
 			this.collections[i].set(this.value);
 			DOM.repeat(this.collections[i]);

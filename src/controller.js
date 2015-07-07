@@ -44,11 +44,7 @@ Controller.prototype.setModel = function( name, value ) {
 	for( var i=0; i < len; i+=1 ) {
 		if( this.model[ i ].name === name ) {
 			found =true;
-			if( value && value.call ) {
-				this.model[ i ].set( value.call() );
-			} else {
-				this.model[ i ].set( value );
-		 }
+			this.model[ i ].set( value );
 		}
 	}
 	// Create a new model if then did not found

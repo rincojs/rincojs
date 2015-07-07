@@ -1636,11 +1636,7 @@ Controller.prototype.setModel = function( name, value ) {
 	for( var i=0; i < len; i+=1 ) {
 		if( this.model[ i ].name === name ) {
 			found =true;
-			if( value && value.call ) {
-				this.model[ i ].set( value.call() );
-			} else {
-				this.model[ i ].set( value );
-		 }
+			this.model[ i ].set( value );
 		}
 	}
 	// Create a new model if then did not found
@@ -1754,7 +1750,7 @@ var DOM = (function( window, document ) {
 						var elements = getTextNodeByModel( modelName, MODELS  );
 						elements.push( arrModels[ j ] );
 
-						Model.push( { name: modelName, DOM: elements, loop:[] } )
+						Model.push( { name: modelName, DOM: elements, loop:[], controller:ctrName } )
 					}
 					// Collections
 					for (var k = 0; k < LOOPMODELS.length; k++) {
@@ -1939,8 +1935,20 @@ var Event = (function( window, document ) {
 	}
 
 	function receive( event ) {
-		var el = event.target, id = el.getAttribute( 'x-id' );
-		Storage.cache.models[ id ].set( el.value );
+		var el = event.target,
+			id = el.getAttribute( 'x-id' ),
+			expression = el.getAttribute('x-keypress') || '',
+			controller = Storage.cache.models[ id ].controller;
+
+Storage.cache.models[ id ].set( el.value );
+
+		// reajustando a string
+		expression = expression.replace(/\$([a-z_][a-z0-9]*)/gi, 'Storage.cache.controllers["' + controller + '"].getModelByName("$1")');
+		console.log(expression);
+		Function.call(null, 'Storage', 'return ' + expression)(Storage);
+		// Storage.cache.controllers[controller].update();
+
+
 		// Action.addToQueue( Storage.Model[ id ].name );
 		// console.log(  Storage.cache.models[ id ] )
 	}
@@ -1950,7 +1958,7 @@ var Event = (function( window, document ) {
 			  var e=event.target, b, c;
 				console.log(event.type);
 			  while(e.parentNode) {
-					c = e.getAttribute('x-on' + event.type) ;
+					c = e.getAttribute('x-onclick') ;
 			    if (c) {
 			        b = e;
 			        do {
@@ -2005,6 +2013,7 @@ var Model = Rinco.Model = function (opt) {
 	this.DOM = opt.DOM || [];
 	this.loop = opt.loop || [];
 	this.collections = [];
+	this.controller = opt.controller || '';
 
 	Event.listen( this.DOM );
 	this.makeCollections();
@@ -2067,7 +2076,7 @@ _.extend( Model.prototype, {
 	updateCollections: function () {
 
 		var len = this.collections.length, i=0;
-		if( !this.value.push ) return;
+		if( this.value && !this.value.push ) return;
 		for(;i < len; i+=1) {
 			this.collections[i].set(this.value);
 			DOM.repeat(this.collections[i]);
